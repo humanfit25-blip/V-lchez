@@ -1,1 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microciclo Box + Gym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Syne:wght@800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04060d; --line:rgba(255,255,255,.09); --txt:#eef1f8; --dim:#8d94ab;
+  /* SU PLAN: azul */
+  --navy:#0a1838; --blue:#3d9bff; --sky:#7cc8ff; --cobalt:#0052cc;
+  --p-his:rgba(8,20,48,.82);
+  /* NUESTRO: fuego HYBRID MUSCLE */
+  --f1:#e0371a; --f2:#ff7a1a; --f3:#ffc23d; --gun:#2a2d34;
+  --p-our:rgba(30,12,8,.86);
+  --fire:linear-gradient(90deg,var(--f1),var(--f2),var(--f3));
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:74px}
+html{background:var(--bg);
+  background-image:
+    radial-gradient(900px 600px at 100% 0%,rgba(255,122,26,.13),transparent 70%),
+    radial-gradient(900px 600px at 0% 40%,rgba(0,82,204,.16),transparent 70%),
+    radial-gradient(700px 400px at 100% 100%,rgba(224,55,26,.10),transparent 70%);
+  background-attachment:fixed}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+body{
+  background:transparent;color:var(--txt);font-family:Rajdhani,system-ui,sans-serif;font-size:17px;line-height:1.45;
+}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px 80px}
+h1,h2,h3{font-family:Orbitron,sans-serif;letter-spacing:.06em}
+
+/* HERO + LOGO */
+.hero{padding:36px 0 22px;text-align:center}
+.kb3d{position:relative;width:240px;height:280px;margin:0 auto 4px;touch-action:pan-y;cursor:grab}
+.kb3d canvas{display:block;width:100%!important;height:100%!important}
+.logo{position:absolute;left:50%;top:50%;width:160px;transform:translate(-50%,-50%);filter:drop-shadow(0 0 24px rgba(255,122,26,.45))}
+.hero.live .logo{display:none}
+.brand{font-family:Syne,Orbitron,sans-serif;font-weight:800;font-size:clamp(28px,7vw,44px);letter-spacing:.04em;line-height:1;
+  background:linear-gradient(180deg,#c9ced8,#8a909c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand span{background:var(--fire);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kicker{font-family:Orbitron;font-size:11px;letter-spacing:.35em;color:var(--f3);margin:12px 0 6px}
+.hero h1{font-size:clamp(18px,4vw,26px);font-weight:800;margin-bottom:8px;color:var(--txt)}
+.hero p{color:var(--dim);max-width:640px;margin:0 auto}
+
+/* TIRA */
+.strip{position:sticky;top:0;z-index:9;background:rgba(4,6,13,.9);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);margin:0 -16px 26px;padding:10px 16px}
+.strip-in{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:1100px;margin:0 auto}
+.strip a{text-decoration:none;color:var(--txt);border-radius:10px;padding:6px 2px;text-align:center;
+  font-family:Orbitron;font-size:11px;font-weight:800;display:block}
+.strip a small{display:block;font-family:Rajdhani;font-size:11px;font-weight:700;letter-spacing:.12em}
+.strip a.b{background:rgba(10,24,56,.9);border:1px solid rgba(61,155,255,.45)} .strip a.b small{color:var(--sky)}
+.strip a.g{background:rgba(40,14,6,.9);border:1px solid rgba(255,122,26,.6);box-shadow:inset 0 -3px 0 var(--f2),0 0 12px rgba(255,122,26,.25)} .strip a.g small{color:var(--f3)}
+
+/* REGLAS (nuestras) */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:34px}
+.rule{background:var(--p-our);border:1px solid rgba(255,122,26,.25);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden}
+.rule::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(180deg,var(--f3),var(--f1))}
+.rule h3{font-size:11px;color:var(--f3);margin-bottom:6px}
+.rule p{color:#c9b9ae;font-size:15.5px}
+.rule b{color:var(--txt)}
+
+/* DIA */
+.day{margin:0 0 40px}
+.day-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.day-h h2{font-size:clamp(20px,4.5vw,28px);font-weight:900}
+.day-h .date{color:var(--dim);font-weight:700;letter-spacing:.1em}
+.tag{font-family:Orbitron;font-size:10px;font-weight:800;letter-spacing:.2em;padding:5px 10px;border-radius:99px}
+.tag.b{color:var(--sky);border:1px solid var(--blue);background:rgba(0,82,204,.18)}
+.tag.g{color:#1a0a04;background:var(--fire);box-shadow:0 0 16px rgba(255,122,26,.5)}
+.why{color:#d6c3b6;font-size:15.5px;margin:-4px 0 12px;border-left:3px solid var(--f2);padding:6px 10px;background:linear-gradient(90deg,rgba(255,122,26,.10),transparent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.chip{font-size:13px;font-weight:700;color:var(--sky);border:1px solid rgba(61,155,255,.35);background:rgba(0,82,204,.10);border-radius:99px;padding:2px 10px}
+
+.split{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:820px){.split{grid-template-columns:.85fr 1.15fr}}
+
+.card{border-radius:18px;padding:16px 18px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0 0 auto 0;height:3px}
+.card-t{font-family:Orbitron;font-size:11px;font-weight:800;letter-spacing:.22em;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;outline:none}
+.card-t:focus-visible{outline:1px dashed currentColor;outline-offset:4px}
+.chev{flex:none;width:9px;height:9px;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg) translateY(-3px);transition:transform .35s}
+.card.open .chev{transform:rotate(-135deg) translateY(-1px)}
+.cb{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s ease}
+.card.open .cb{grid-template-rows:1fr}
+.cbi{min-height:0;overflow:hidden}
+.cbp{padding-top:12px}
+.ctl{display:flex;justify-content:center;gap:10px;margin:-14px 0 30px}
+.ctl button{font-family:Orbitron;font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--f3);background:rgba(30,12,8,.8);border:1px solid rgba(255,122,26,.4);border-radius:99px;padding:8px 14px;cursor:pointer}
+
+/* su plan: azul */
+.card.box,.card.orig{background:linear-gradient(180deg,var(--p-his),rgba(6,12,30,.85));border:1px solid rgba(61,155,255,.22)}
+.card.box::before{background:linear-gradient(90deg,var(--cobalt),var(--blue),var(--sky));box-shadow:0 0 14px var(--blue)}
+.card.orig{opacity:.68}
+.card.orig::before{background:repeating-linear-gradient(90deg,var(--blue) 0 10px,transparent 10px 18px)}
+.box .card-t,.orig .card-t{color:var(--sky)} .orig .card-t .ct span{color:var(--dim)}
+.box .ln.h,.orig .ln.h{color:var(--sky)}
+.box .blk-h,.orig .blk-h{color:#5f7fb0}
+
+/* nuestro: fuego */
+.card.gym{background:
+    radial-gradient(500px 220px at 100% 0%,rgba(255,122,26,.16),transparent 70%),
+    radial-gradient(400px 200px at 0% 100%,rgba(224,55,26,.12),transparent 70%),
+    var(--p-our);
+  border:1px solid rgba(255,122,26,.4);box-shadow:0 0 28px rgba(255,90,20,.18),inset 0 0 0 1px rgba(255,194,61,.05)}
+.card.gym::before{height:4px;background:var(--fire);box-shadow:0 0 20px var(--f2)}
+.gym .card-t{color:var(--f2)} .gym .card-t .ct{background:var(--fire);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gym .ln.h{color:var(--f3)}
+.gym .blk-h{color:#c98a5a}
+
+.blk{border-top:1px solid var(--line);padding:10px 0 8px}
+.blk:first-of-type{border-top:0;padding-top:0}
+.blk-h{font-family:Orbitron;font-size:10.5px;font-weight:800;letter-spacing:.2em;margin-bottom:4px}
+.ln{font-weight:600}
+.ln.h{font-weight:700}
+.ln.r{color:var(--dim);font-style:italic}
+.kg{color:var(--dim);font-weight:500;font-size:14px}
+
+.ex{display:grid;grid-template-columns:30px 1fr;gap:2px 10px;padding:7px 0;border-top:1px dashed rgba(255,122,26,.18)}
+.ex:first-of-type{border-top:0}
+.ex .k{font-family:Orbitron;font-size:12px;font-weight:900;color:var(--f2);padding-top:2px;text-shadow:0 0 10px rgba(255,122,26,.6)}
+.ex .n{font-weight:700}
+.ex .m{grid-column:2;display:flex;flex-wrap:wrap;gap:5px}
+.p{font-size:13px;font-weight:700;border-radius:6px;padding:1px 7px;background:rgba(255,122,26,.10)}
+.p.s{color:var(--txt)} .p.rir{color:var(--f3)} .p.t{color:#b89a86}
+.z2{margin-top:10px;border:1px solid rgba(255,194,61,.4);border-radius:12px;padding:10px 12px;background:rgba(255,194,61,.06)}
+.z2 .blk-h{color:var(--f3)}
+
+details{margin-top:12px;border:1px solid rgba(255,122,26,.25);border-radius:12px;background:rgba(0,0,0,.3)}
+summary{cursor:pointer;list-style:none;padding:10px 14px;font-family:Orbitron;font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--f3)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:" +"} details[open] summary::after{content:" \2212"}
+.fb{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;padding:0 14px 14px}
+.fb div{border-left:2px solid var(--f3);padding-left:10px;color:#c9b9ae;font-size:15px}
+.fb div.rf{border-color:var(--f1)}
+.fb b{display:block;color:var(--txt);font-family:Orbitron;font-size:10px;letter-spacing:.18em;margin-bottom:3px}
+
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:7px 8px;border-bottom:1px solid rgba(255,122,26,.15);text-align:left}
+th{font-family:Orbitron;font-size:10px;letter-spacing:.18em;color:var(--f3)}
+td.n{font-family:Orbitron;font-weight:800;color:var(--f2)}
+.foot{color:var(--dim);text-align:center;font-size:14px;margin-top:30px}
+
+/* PRE / POST: movilidad y rodilla */
+.mob{position:relative;border-radius:16px;padding:14px 16px 12px;margin:0 0 14px;
+  background:linear-gradient(135deg,rgba(255,194,61,.16),rgba(255,122,26,.07) 60%,rgba(30,12,8,.85));
+  border:1.5px solid var(--f3);box-shadow:0 0 22px rgba(255,194,61,.25);animation:mobglow 2.8s ease-in-out infinite}
+.mob.post{margin:14px 0 0}
+@keyframes mobglow{50%{box-shadow:0 0 36px rgba(255,194,61,.5)}}
+.mob-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-bottom:8px}
+.mob-b{font-family:Orbitron;font-weight:900;font-size:14px;letter-spacing:.16em;color:#1a0a04;padding:5px 11px;border-radius:8px;
+  background:linear-gradient(90deg,#fff3c8,var(--f3),var(--f2),var(--f3),#fff3c8);background-size:300% 100%;animation:mobshine 4s linear infinite}
+@keyframes mobshine{to{background-position:-300% 0}}
+.mob-t{font-family:Orbitron;font-weight:900;font-size:clamp(12px,3.4vw,15px);letter-spacing:.1em;color:#fff;text-shadow:0 0 14px rgba(255,194,61,.7)}
+.mob-time{margin-left:auto;font-family:Orbitron;font-weight:900;font-size:20px;color:var(--f3);text-shadow:0 0 16px var(--f2)}
+.mob .ln{font-size:17px;font-weight:700}
+.mob .ln.h{color:var(--f3)}
+.mob-why{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,194,61,.35);font-size:14.5px;color:#f1d9b4}
+@media (prefers-reduced-motion:reduce){.mob,.mob-b{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kb3d" id="kb3d"><svg class="logo" viewBox="-170 -300 340 410" role="img" aria-label="Hybrid Muscle">
+<defs>
+<linearGradient id="fireG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#E0371A"/><stop offset=".55" stop-color="#FF7A1A"/><stop offset="1" stop-color="#FFC23D"/></linearGradient>
+<linearGradient id="coreG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FF7A1A"/><stop offset="1" stop-color="#FFC23D"/></linearGradient>
+</defs>
+<path fill="url(#fireG)" d="M-60 95 C-150 60 -165 -40 -118 -112 C-116 -70 -100 -50 -88 -40 C-112 -120 -82 -195 -38 -238 C-46 -195 -34 -172 -16 -160 C-22 -215 8 -262 46 -285 C26 -238 40 -205 58 -188 C72 -215 96 -232 120 -242 C102 -195 126 -152 106 -100 C126 -118 138 -138 146 -152 C166 -70 150 30 60 95 Z"/>
+<path fill="url(#coreG)" opacity=".9" d="M-40 80 C-100 40 -105 -40 -70 -90 C-60 -60 -50 -50 -40 -45 C-50 -110 -20 -160 15 -190 C8 -150 25 -125 40 -115 C55 -140 70 -152 88 -160 C78 -120 100 -70 75 -30 C100 -50 105 -60 110 -70 C120 -10 100 50 40 80 Z"/>
+<path d="M-52.0 -78.0 C-53.2 -82.0 -57.8 -93.2 -59.5 -102.0 C-61.2 -110.8 -62.7 -122.2 -62.0 -131.0 C-61.3 -139.8 -59.8 -148.6 -55.5 -155.0 C-51.2 -161.4 -45.2 -166.4 -36.0 -169.5 C-26.7 -172.6 -12.0 -173.5 0.0 -173.5 C12.0 -173.5 26.7 -172.6 36.0 -169.5 C45.2 -166.4 51.2 -161.4 55.5 -155.0 C59.8 -148.6 61.3 -139.8 62.0 -131.0 C62.7 -122.2 61.2 -110.8 59.5 -102.0 C57.8 -93.2 53.2 -82.0 52.0 -78.0 Z" fill="#05060c"/>
+<path d="M-52.0 -78.0 C-53.2 -82.0 -57.8 -93.2 -59.5 -102.0 C-61.2 -110.8 -62.7 -122.2 -62.0 -131.0 C-61.3 -139.8 -59.8 -148.6 -55.5 -155.0 C-51.2 -161.4 -45.2 -166.4 -36.0 -169.5 C-26.7 -172.6 -12.0 -173.5 0.0 -173.5 C12.0 -173.5 26.7 -172.6 36.0 -169.5 C45.2 -166.4 51.2 -161.4 55.5 -155.0 C59.8 -148.6 61.3 -139.8 62.0 -131.0 C62.7 -122.2 61.2 -110.8 59.5 -102.0 C57.8 -93.2 53.2 -82.0 52.0 -78.0" fill="none" stroke="#05060c" stroke-width="47" stroke-linecap="round"/>
+<path d="M-50.0 86.0 L50.0 86.0 L60.0 80.5 L61.8 78.6 L64.2 76.6 L66.6 74.6 L68.9 72.5 L71.1 70.3 L73.3 68.1 L75.4 65.7 L77.4 63.4 L79.3 60.9 L81.2 58.4 L82.9 55.9 L84.7 53.2 L86.3 50.6 L87.8 47.9 L89.3 45.1 L90.6 42.3 L91.9 39.4 L93.1 36.6 L94.2 33.6 L95.2 30.7 L96.1 27.7 L96.9 24.7 L97.6 21.7 L98.3 18.6 L98.8 15.5 L99.2 12.4 L99.6 9.3 L99.8 6.2 L100.0 3.1 L100.0 0.0 L99.9 -5.2 L99.5 -10.4 L98.8 -15.6 L97.8 -20.7 L96.6 -25.7 L95.1 -30.7 L93.4 -35.5 L91.4 -40.1 L89.1 -44.7 L86.6 -49.0 L83.9 -53.2 L80.9 -57.2 L77.7 -60.9 L74.3 -64.5 L70.7 -67.9 L66.9 -71.0 L62.9 -74.0 L58.8 -76.7 L54.5 -79.1 L50.0 -81.4 L45.4 -83.4 L40.7 -85.3 L35.8 -86.8 L30.9 -88.2 L25.9 -89.4 L20.8 -90.3 L15.6 -91.1 L10.5 -91.6 L5.2 -91.9 L0.0 -92.0 L-5.2 -91.9 L-10.5 -91.6 L-15.6 -91.1 L-20.8 -90.3 L-25.9 -89.4 L-30.9 -88.2 L-35.8 -86.8 L-40.7 -85.3 L-45.4 -83.4 L-50.0 -81.4 L-54.5 -79.1 L-58.8 -76.7 L-62.9 -74.0 L-66.9 -71.0 L-70.7 -67.9 L-74.3 -64.5 L-77.7 -60.9 L-80.9 -57.2 L-83.9 -53.2 L-86.6 -49.0 L-89.1 -44.7 L-91.4 -40.1 L-93.4 -35.5 L-95.1 -30.7 L-96.6 -25.7 L-97.8 -20.7 L-98.8 -15.6 L-99.5 -10.4 L-99.9 -5.2 L-100.0 -0.0 L-100.0 3.1 L-99.8 6.2 L-99.6 9.3 L-99.2 12.4 L-98.8 15.5 L-98.3 18.6 L-97.6 21.7 L-96.9 24.7 L-96.1 27.7 L-95.2 30.7 L-94.2 33.6 L-93.1 36.6 L-91.9 39.4 L-90.6 42.3 L-89.3 45.1 L-87.8 47.9 L-86.3 50.6 L-84.7 53.2 L-82.9 55.9 L-81.2 58.4 L-79.3 60.9 L-77.4 63.4 L-75.4 65.7 L-73.3 68.1 L-71.1 70.3 L-68.9 72.5 L-66.6 74.6 L-64.2 76.6 L-61.8 78.6 L-59.3 80.5 L-60.0 80.5 Z" fill="#05060c" stroke="#05060c" stroke-width="17" stroke-linejoin="round"/>
+<path d="M-52.0 -78.0 C-53.2 -82.0 -57.8 -93.2 -59.5 -102.0 C-61.2 -110.8 -62.7 -122.2 -62.0 -131.0 C-61.3 -139.8 -59.8 -148.6 -55.5 -155.0 C-51.2 -161.4 -45.2 -166.4 -36.0 -169.5 C-26.7 -172.6 -12.0 -173.5 0.0 -173.5 C12.0 -173.5 26.7 -172.6 36.0 -169.5 C45.2 -166.4 51.2 -161.4 55.5 -155.0 C59.8 -148.6 61.3 -139.8 62.0 -131.0 C62.7 -122.2 61.2 -110.8 59.5 -102.0 C57.8 -93.2 53.2 -82.0 52.0 -78.0" fill="none" stroke="#2A2D34" stroke-width="30" stroke-linecap="butt"/>
+<path d="M-50.0 86.0 L50.0 86.0 L60.0 80.5 L61.8 78.6 L64.2 76.6 L66.6 74.6 L68.9 72.5 L71.1 70.3 L73.3 68.1 L75.4 65.7 L77.4 63.4 L79.3 60.9 L81.2 58.4 L82.9 55.9 L84.7 53.2 L86.3 50.6 L87.8 47.9 L89.3 45.1 L90.6 42.3 L91.9 39.4 L93.1 36.6 L94.2 33.6 L95.2 30.7 L96.1 27.7 L96.9 24.7 L97.6 21.7 L98.3 18.6 L98.8 15.5 L99.2 12.4 L99.6 9.3 L99.8 6.2 L100.0 3.1 L100.0 0.0 L99.9 -5.2 L99.5 -10.4 L98.8 -15.6 L97.8 -20.7 L96.6 -25.7 L95.1 -30.7 L93.4 -35.5 L91.4 -40.1 L89.1 -44.7 L86.6 -49.0 L83.9 -53.2 L80.9 -57.2 L77.7 -60.9 L74.3 -64.5 L70.7 -67.9 L66.9 -71.0 L62.9 -74.0 L58.8 -76.7 L54.5 -79.1 L50.0 -81.4 L45.4 -83.4 L40.7 -85.3 L35.8 -86.8 L30.9 -88.2 L25.9 -89.4 L20.8 -90.3 L15.6 -91.1 L10.5 -91.6 L5.2 -91.9 L0.0 -92.0 L-5.2 -91.9 L-10.5 -91.6 L-15.6 -91.1 L-20.8 -90.3 L-25.9 -89.4 L-30.9 -88.2 L-35.8 -86.8 L-40.7 -85.3 L-45.4 -83.4 L-50.0 -81.4 L-54.5 -79.1 L-58.8 -76.7 L-62.9 -74.0 L-66.9 -71.0 L-70.7 -67.9 L-74.3 -64.5 L-77.7 -60.9 L-80.9 -57.2 L-83.9 -53.2 L-86.6 -49.0 L-89.1 -44.7 L-91.4 -40.1 L-93.4 -35.5 L-95.1 -30.7 L-96.6 -25.7 L-97.8 -20.7 L-98.8 -15.6 L-99.5 -10.4 L-99.9 -5.2 L-100.0 -0.0 L-100.0 3.1 L-99.8 6.2 L-99.6 9.3 L-99.2 12.4 L-98.8 15.5 L-98.3 18.6 L-97.6 21.7 L-96.9 24.7 L-96.1 27.7 L-95.2 30.7 L-94.2 33.6 L-93.1 36.6 L-91.9 39.4 L-90.6 42.3 L-89.3 45.1 L-87.8 47.9 L-86.3 50.6 L-84.7 53.2 L-82.9 55.9 L-81.2 58.4 L-79.3 60.9 L-77.4 63.4 L-75.4 65.7 L-73.3 68.1 L-71.1 70.3 L-68.9 72.5 L-66.6 74.6 L-64.2 76.6 L-61.8 78.6 L-59.3 80.5 L-60.0 80.5 Z" fill="#2A2D34"/>
+<path d="M-70 -40 C-60 -70 -30 -82 0 -84 C-30 -74 -52 -58 -62 -30 Z" fill="#454A54"/>
+</svg></div>
+  <div class="brand">HYBRID <span>MUSCLE</span></div>
+  <div class="kicker">HUMANFITS &middot; ENSAYO</div>
+  <h1>MICROCICLO BOX + GYM</h1>
+  <p>Semana del 2 al 7 de noviembre. Tres d&iacute;as con su box tal cual, tres d&iacute;as sustituidos por musculaci&oacute;n anal&iacute;tica que construye sin robarle frescura a la clase del d&iacute;a siguiente.</p>
+</header>
+
+<nav class="strip"><div class="strip-in">
+  <a class="b" href="#lun">LUN<small>BOX</small></a>
+  <a class="g" href="#mar">MAR<small>GYM A</small></a>
+  <a class="b" href="#mie">MI&Eacute;<small>BOX</small></a>
+  <a class="g" href="#jue">JUE<small>GYM B</small></a>
+  <a class="b" href="#vie">VIE<small>BOX</small></a>
+  <a class="g" href="#sab">S&Aacute;B<small>GYM C</small></a>
+</div></nav>
+
+<section class="rules">
+  <div class="rule"><h3>ALTERNANCIA</h3><p><b>Box L &middot; X &middot; V. Gym M &middot; J &middot; S.</b> Nunca dos d&iacute;as de box seguidos: cada clase llega tras un d&iacute;a de trabajo anal&iacute;tico.</p></div>
+  <div class="rule"><h3>NO PISAR EL MA&Ntilde;ANA</h3><p>El gym <b>nunca carga lo que el box carga al d&iacute;a siguiente</b>: sin overhead ni bisagra pesada antes de mi&eacute;rcoles y viernes; piernas solo el s&aacute;bado.</p></div>
+  <div class="rule"><h3>ESFUERZO</h3><p><b>RIR 2 de base</b> (RPE 8), RIR 1 solo en aislamientos. Sin fallo y sin barra con carga axial: m&aacute;quinas, poleas y mancuernas.</p></div>
+  <div class="rule"><h3>PROGRESI&Oacute;N</h3><p><b>Doble progresi&oacute;n:</b> cuando todas las series llegan al techo del rango, +2,5&ndash;5% la semana siguiente. Se anota el peso.</p></div>
+  <div class="rule"><h3>ZONA 2</h3><p><b>20&ndash;30 min, RPE 3&ndash;4</b>, puede hablar en frases completas. Si llega reventado se recorta la Z2, nunca la fuerza.</p></div>
+  <div class="rule"><h3>RODILLA</h3><p><b>Dolor m&aacute;ximo 3/10</b> durante el trabajo, y a la ma&ntilde;ana siguiente igual o mejor. Si sube, se acorta el rango o se baja la carga. Hinchaz&oacute;n, bloqueo o fallo de la rodilla: se para y se valora con un profesional.</p></div>
+</section>
+<div class="ctl"><button type="button" data-all="1">ABRIR TODO</button><button type="button" data-all="0">CERRAR TODO</button></div>
+
+<!-- ============ LUNES ============ -->
+<section class="day" id="lun">
+  <div class="day-h"><h2>LUNES</h2><span class="date">2 NOV</span><span class="tag b">BOX &middot; SE MANTIENE</span></div>
+  <div class="chips"><span class="chip">Cu&aacute;driceps</span><span class="chip">Empuje vertical</span><span class="chip">Clean</span><span class="chip">Burpees</span></div>
+  <div class="mob pre"><div class="mob-h"><span class="mob-b">PRE</span><span class="mob-t">RODILLA + OVERHEAD</span><span class="mob-time">6&prime;</span></div><div class="ln">1:00 Banded Ankle Dorsiflexion (30&Prime;/side)</div><div class="ln h">2 Rounds</div><div class="ln">30&Prime; Spanish Squat Hold (band behind knees)</div><div class="ln">10/10 Banded Terminal Knee Extension</div><div class="ln">5 PVC Overhead Squats (3&Prime; pause bottom)</div><div class="mob-why">Hoy hay zancadas y thrusters: la rodilla entra caliente y cargada en isometr&iacute;a antes de la primera repetici&oacute;n.</div></div>
+  <div class="card box"><div class="card-t" role="button" tabindex="0" aria-expanded="false"><span class="ct">SU PLAN &middot; BOX</span><i class="chev"></i></div><div class="cb"><div class="cbi"><div class="cbp">
+    <div class="blk"><div class="blk-h">WARM-UP</div>
+      <div class="ln h">3 Rounds</div>
+      <div class="ln">10/10 Static Lunges</div><div class="ln">20 Plank Jacks</div><div class="ln">20 Shoulder Taps</div>
+      <div class="ln">10 BB Push Press</div><div class="ln">10 H. Muscle Clean</div></div>
+    <div class="blk"><div class="blk-h">SKILL</div>
+      <div class="ln h">3 Rounds</div>
+      <div class="ln">14 Front Rack Reverse Lunges @75/55 lb <span class="kg">(34/25 kg)</span></div>
+      <div class="ln">14 Light Weight SDLHP</div><div class="ln">30&Prime; Max Jumping Squats</div>
+      <div class="ln r">Rest 1:00 between rounds</div></div>
+    <div class="blk"><div class="blk-h">WOD &middot; CAP 14:00</div>
+      <div class="ln h">3:00 AMRAP</div><div class="ln">10 S2OH</div><div class="ln">10 Burpees @No Jump</div><div class="ln r">Rest 1:00</div>
+      <div class="ln h">4:00 AMRAP</div><div class="ln">10 Thrusters</div><div class="ln">10 Burpees @Jump</div><div class="ln r">Rest 1:00</div>
+      <div class="ln h">5:00 AMRAP</div><div class="ln">10 H. Power Clean</div><div class="ln">10 Burpees OTB</div>
+      <div class="ln">RX @75/55 lb <span class="kg">(34/25 kg)</span></div></div>
+  </div></div></div></div>
+  <div class="mob post"><div class="mob-h"><span class="mob-b">POST</span><span class="mob-t">RODILLA BLINDADA</span><span class="mob-time">5&prime;</span></div><div class="ln h">2 Rounds</div><div class="ln">15 Wall Tibialis Raises</div><div class="ln">6/6 Slow Step-Down (3&Prime; down, low box)</div><div class="ln h">1:00 Couch Stretch (30&Prime;/side)</div><div class="mob-why">Bajada lenta: rodilla alineada con el segundo dedo del pie, sin que se vaya hacia dentro.</div></div>
+</section>
+
+<!-- ============ MARTES ============ -->
+<section class="day" id="mar">
+  <div class="day-h"><h2>MARTES</h2><span class="date">3 NOV</span><span class="tag g">GYM A &middot; TORSO: TRACCI&Oacute;N + PECHO</span></div>
+  <p class="why">Ma&ntilde;ana toca clean &amp; jerk, peso muerto y HSPU: hoy ni overhead ni bisagra. Espalda horizontal, pecho y b&iacute;ceps.</p>
+  <div class="mob pre"><div class="mob-h"><span class="mob-b">PRE</span><span class="mob-t">RODILLA + HOMBRO OVERHEAD</span><span class="mob-time">6&prime;</span></div><div class="ln">1:00 Thoracic Extension on Foam Roller</div><div class="ln h">2 Rounds</div><div class="ln">10 Wall Slides</div><div class="ln">8 PVC Pass-Throughs</div><div class="ln">30&Prime; Spanish Squat Hold</div><div class="mob-why">D&iacute;a de torso: abrimos columna tor&aacute;cica y hombro, el pilar del overhead squat.</div></div>
+  <div class="split">
+    <div class="card orig"><div class="card-t" role="button" tabindex="0" aria-expanded="false"><span class="ct">SU PLAN &middot; <span>SUSTITUIDO</span></span><i class="chev"></i></div><div class="cb"><div class="cbi"><div class="cbp">
+      <div class="blk"><div class="blk-h">WARM-UP</div>
+        <div class="ln h">2 Rounds</div><div class="ln">5 Shuttle Runs @7.5 m (x2 = 1)</div><div class="ln">10 Squat to Hand</div>
+        <div class="ln">15 Scapular Push-ups</div><div class="ln">20 Groiners</div></div>
+      <div class="blk"><div class="blk-h">SKILL</div>
+        <div class="ln h">3 Rounds</div><div class="ln">10 Tempo 3:1 DDB Strict Press @35/20 lb <span class="kg">(16/9 kg)</span></div><div class="ln">6&ndash;8 Strict Pull-ups</div>
+        <div class="ln h">3 Rounds</div><div class="ln">20 Gorilla Row @35/20 lb <span class="kg">(16/9 kg)</span></div><div class="ln">20 Tempo 3:1 Banded Face Pull</div></div>
+      <div class="blk"><div class="blk-h">WOD &middot; CAP 16:00</div>
+        <div class="ln h">4 Rounds</div><div class="ln">30 DU / 60 SU</div><div class="ln">10 DDB Snatch</div><div class="ln">30 Cal Row / Bike / Ski</div>
+        <div class="ln">RX @35/25 lb <span class="kg">(16/11 kg)</span></div></div>
+    </div></div></div></div>
+    <div class="card gym"><div class="card-t" role="button" tabindex="0" aria-expanded="false"><span class="ct">HYBRID MUSCLE &middot; 60&ndash;65&prime;</span><i class="chev"></i></div><div class="cb"><div class="cbi"><div class="cbp">
+      <div class="blk"><div class="blk-h">WARM-UP &middot; 8&prime;</div>
+        <div class="ln">5:00 BikeErg easy</div>
+        <div class="ln h">2 Rounds</div><div class="ln">12 Band Pull-Aparts</div><div class="ln">10 Scapular Push-ups</div><div class="ln">8/8 Band External Rotation</div></div>
+      <div class="blk"><div class="blk-h">FUERZA-HIPERTROFIA</div>
+        <div class="ex"><span class="k">A</span><span class="n">Chest-Supported Row (machine or incline DB)</span><span class="m"><span class="p s">4 x 8&ndash;10</span><span class="p rir">RIR 2</span><span class="p t">Rest 2:00</span></span></div>
+        <div class="ex"><span class="k">B</span><span class="n">Incline DB Press (30&deg;)</span><span class="m"><span class="p s">4 x 8&ndash;10</span><span class="p rir">RIR 2</span><span class="p t">Rest 2:00</span></span></div>
+        <div class="ex"><span class="k">C</span><span class="n">Neutral-Grip Lat Pulldown</span><span class="m"><span class="p s">3 x 10&ndash;12</span><span class="p rir">RIR 2</span><span class="p t">Rest 1:30</span></span></div>
+        <div class="ex"><span class="k">D</span><span class="n">Low-to-High Cable Fly</span><span class="m"><span class="p s">3 x 12&ndash;15</span><span class="p rir">RIR 1&ndash;2</span><span class="p t">Rest 1:00</span></span></div>
+        <div class="ex"><span class="k">E1</span><span class="n">Incline DB Curl</span><span class="m"><span class="p s">3 x 10&ndash;12</span><span class="p rir">RIR 1&ndash;2</span></span></div>
+        <div class="ex"><span class="k">E2</span><span class="n">Reverse Pec Deck</span><span class="m"><span class="p s">3 x 12&ndash;15</span><span class="p rir">RIR 1&ndash;2</span><span class="p t">Rest 1:00 after E2</span></span></div>
+      </div>
+      <div class="z2"><div class="blk-h">ZONA 2 &middot; CIERRE</div><div class="ln">25:00 BikeErg &middot; RPE 3&ndash;4 &middot; nasal breathing</div></div>
+      <details><summary>FEEDBACK COACH</summary><div class="fb">
+        <div><b>FOCO T&Eacute;CNICO</b>Remo: &laquo;lleva los codos hacia los bolsillos de atr&aacute;s&raquo;. Press inclinado: &laquo;empuja el banco lejos de ti&raquo;, esc&aacute;pulas pegadas al respaldo.</div>
+        <div class="rf"><b>BANDERAS ROJAS</b>Si el press le deja el hombro cargado, baja a RIR 3: ma&ntilde;ana tiene HSPU y jerk. Dolor punzante en el hombro, se corta el ejercicio.</div>
+      </div></details>
+    </div></div></div></div>
+  </div>
+  <div class="mob post"><div class="mob-h"><span class="mob-b">POST</span><span class="mob-t">DOSIS DE RODILLA</span><span class="mob-time">6&prime;</span></div><div class="ln h">4 Rounds</div><div class="ln">45&Prime; Spanish Squat Hold (RPE 7)</div><div class="ln">15&Prime; rest</div><div class="ln h">1:00 Banded Ankle Dorsiflexion (30&Prime;/side)</div><div class="mob-why">Dosis principal de la semana: isometr&iacute;a larga, cu&aacute;driceps fuerte y tend&oacute;n cargado sin impacto.</div></div>
+</section>
+
+<!-- ============ MIERCOLES ============ -->
+<section class="day" id="mie">
+  <div class="day-h"><h2>MI&Eacute;RCOLES</h2><span class="date">4 NOV</span><span class="tag b">BOX &middot; SE MANTIENE</span></div>
+  <div class="chips"><span class="chip">Clean &amp; Jerk</span><span class="chip">Bisagra</span><span class="chip">Empuje vertical</span></div>
+  <div class="mob pre"><div class="mob-h"><span class="mob-b">PRE</span><span class="mob-t">RODILLA + CADERA</span><span class="mob-time">5&prime;</span></div><div class="ln">1:00 Banded Ankle Dorsiflexion (30&Prime;/side)</div><div class="ln h">2 Rounds</div><div class="ln">10/10 Banded Lateral Walk</div><div class="ln">30&Prime; Spanish Squat Hold</div><div class="ln">5 PVC Overhead Squats (3&Prime; pause bottom)</div><div class="mob-why">Gl&uacute;teo medio despierto: es el que impide que la rodilla se meta hacia dentro en el clean.</div></div>
+  <div class="card box"><div class="card-t" role="button" tabindex="0" aria-expanded="false"><span class="ct">SU PLAN &middot; BOX</span><i class="chev"></i></div><div class="cb"><div class="cbi"><div class="cbp">
+    <div class="blk"><div class="blk-h">WARM-UP</div>
+      <div class="ln h">3 Rounds</div><div class="ln">8 M. Clean &amp; Press</div><div class="ln">20 Lateral Hops</div>
+      <div class="ln">8 BB Good Morning</div><div class="ln">40 Mountain Climbers</div></div>
+    <div class="blk"><div class="blk-h">SKILL</div>
+      <div class="ln h">Every 45&Prime; x 8 Rounds</div>
+      <div class="ln">5 Clean &amp; Jerk @95/65 lb <span class="kg">(43/29 kg)</span></div><div class="ln">5 Burpees OTB</div></div>
+    <div class="blk"><div class="blk-h">WOD &middot; CAP 15:00</div>
+      <div class="ln h">21-18-15</div><div class="ln">Deadlift @95/65 lb <span class="kg">(43/29 kg)</span></div><div class="ln">Kipping HSPU / HRPU</div>
+      <div class="ln r">Rest 1:00</div>
+      <div class="ln h">12-9-6</div><div class="ln">Deadlift @115/75 lb <span class="kg">(52/34 kg)</span></div><div class="ln">Strict HSPU / Pike Push-ups</div></div>
+  </div></div></div></div>
+  <div class="mob post"><div class="mob-h"><span class="mob-b">POST</span><span class="mob-t">RODILLA BLINDADA</span><span class="mob-time">5&prime;</span></div><div class="ln h">2 Rounds</div><div class="ln">15 Wall Tibialis Raises</div><div class="ln">30&Prime; Deep Squat Hold (hands on rig, heels down)</div><div class="ln h">1:00 Couch Stretch (30&Prime;/side)</div><div class="mob-why">Sentadilla profunda sostenida: talones abajo y pecho alto, sin rebotar.</div></div>
+</section>
+
+<!-- ============ JUEVES ============ -->
+<section class="day" id="jue">
+  <div class="day-h"><h2>JUEVES</h2><span class="date">5 NOV</span><span class="tag g">GYM B &middot; ESPALDA VERTICAL + HOMBRO + BRAZOS</span></div>
+  <p class="why">Ma&ntilde;ana toca arrancada, sentadilla frontal y RDL: hoy cero piernas y cero press por encima de la cabeza. Dorsal, deltoides lateral y brazos.</p>
+  <div class="mob pre"><div class="mob-h"><span class="mob-b">PRE</span><span class="mob-t">OVERHEAD + RODILLA</span><span class="mob-time">6&prime;</span></div><div class="ln">1:00 Thoracic Extension on Foam Roller</div><div class="ln h">2 Rounds</div><div class="ln">8 PVC Pass-Throughs</div><div class="ln">10 Prone Y-Raises</div><div class="ln">30&Prime; Spanish Squat Hold</div><div class="mob-why">Ma&ntilde;ana hay arrancada y overhead squat: hombro m&oacute;vil y estable desde hoy.</div></div>
+  <div class="split">
+    <div class="card orig"><div class="card-t" role="button" tabindex="0" aria-expanded="false"><span class="ct">SU PLAN &middot; <span>SUSTITUIDO &middot; HYROX</span></span><i class="chev"></i></div><div class="cb"><div class="cbi"><div class="cbp">
+      <div class="blk"><div class="blk-h">WARM-UP</div>
+        <div class="ln h">8:00 EMOM</div><div class="ln">1 &mdash; 12 Jumping Squats + 12 Push-ups</div><div class="ln">2 &mdash; 20 High Knees + 12 Sumo Squats</div></div>
+      <div class="blk"><div class="blk-h">SKILL</div>
+        <div class="ln h">10:00 AMRAP</div><div class="ln">10/10 KB Single-Leg Squat to Box</div><div class="ln">12 Diamond Push-ups</div>
+        <div class="ln">10 Tempo 3:1 KB Goblet Squat</div><div class="ln">12 Box Dips</div><div class="ln r">Focus: Movement Quality</div></div>
+      <div class="blk"><div class="blk-h">WOD</div><div class="ln r">No visible en la captura</div></div>
+    </div></div></div></div>
+    <div class="card gym"><div class="card-t" role="button" tabindex="0" aria-expanded="false"><span class="ct">HYBRID MUSCLE &middot; 60&ndash;65&prime;</span><i class="chev"></i></div><div class="cb"><div class="cbi"><div class="cbp">
+      <div class="blk"><div class="blk-h">WARM-UP &middot; 8&prime;</div>
+        <div class="ln">5:00 Row easy</div>
+        <div class="ln h">2 Rounds</div><div class="ln">10 Scapular Pull-ups</div><div class="ln">10 Band Face Pulls</div><div class="ln">10 Push-ups</div></div>
+      <div class="blk"><div class="blk-h">FUERZA-HIPERTROFIA</div>
+        <div class="ex"><span class="k">A</span><span class="n">Strict Pull-up (weighted if &gt;8 reps)</span><span class="m"><span class="p s">4 x 5&ndash;8</span><span class="p rir">RIR 2</span><span class="p t">Rest 2:00</span></span></div>
+        <div class="ex"><span class="k">B</span><span class="n">Machine Chest Press</span><span class="m"><span class="p s">3 x 8&ndash;10</span><span class="p rir">RIR 2</span><span class="p t">Rest 2:00</span></span></div>
+        <div class="ex"><span class="k">C</span><span class="n">Single-Arm DB Row</span><span class="m"><span class="p s">3 x 10&ndash;12/side</span><span class="p rir">RIR 2</span><span class="p t">Rest 1:30</span></span></div>
+        <div class="ex"><span class="k">D</span><span class="n">Cable Lateral Raise</span><span class="m"><span class="p s">4 x 12&ndash;15/side</span><span class="p rir">RIR 1&ndash;2</span><span class="p t">Rest 1:00</span></span></div>
+        <div class="ex"><span class="k">E1</span><span class="n">Rope Triceps Pushdown</span><span class="m"><span class="p s">3 x 10&ndash;12</span><span class="p rir">RIR 1&ndash;2</span></span></div>
+        <div class="ex"><span class="k">E2</span><span class="n">Hammer Curl</span><span class="m"><span class="p s">3 x 10&ndash;12</span><span class="p rir">RIR 1&ndash;2</span><span class="p t">Rest 1:00 after E2</span></span></div>
+      </div>
+      <div class="z2"><div class="blk-h">ZONA 2 &middot; CIERRE</div><div class="ln">25:00 Row &middot; RPE 3&ndash;4 &middot; damper 4&ndash;5</div></div>
+      <details><summary>FEEDBACK COACH</summary><div class="fb">
+        <div><b>FOCO T&Eacute;CNICO</b>Dominada: &laquo;lleva la barra al pecho&raquo;, bajada completa en 2&Prime;. Elevaci&oacute;n lateral: &laquo;empuja la polea hacia la pared de al lado&raquo;, sin balanceo.</div>
+        <div class="rf"><b>BANDERAS ROJAS</b>Nada de hombros a fuego: ma&ntilde;ana hay overhead squat. Si el agarre o el codo llegan tocados, la dominada pasa a jal&oacute;n.</div>
+      </div></details>
+    </div></div></div></div>
+  </div>
+  <div class="mob post"><div class="mob-h"><span class="mob-b">POST</span><span class="mob-t">RODILLA EN PROFUNDIDAD</span><span class="mob-time">6&prime;</span></div><div class="ln h">3 Rounds</div><div class="ln">8/8 Petersen Step-Up (heel elevated, light)</div><div class="ln">30&Prime; PVC Overhead Squat Hold (bottom)</div><div class="mob-why">Fuerza de rodilla en el rango profundo, justo donde vive la recepci&oacute;n del squat snatch.</div></div>
+</section>
+
+<!-- ============ VIERNES ============ -->
+<section class="day" id="vie">
+  <div class="day-h"><h2>VIERNES</h2><span class="date">6 NOV</span><span class="tag b">BOX &middot; SE MANTIENE</span></div>
+  <div class="chips"><span class="chip">Snatch</span><span class="chip">Sentadilla frontal</span><span class="chip">RDL</span><span class="chip">Core</span></div>
+  <div class="mob pre"><div class="mob-h"><span class="mob-b">PRE</span><span class="mob-t">PRE-ARRANCADA</span><span class="mob-time">6&prime;</span></div><div class="ln">1:00 Banded Ankle Dorsiflexion (30&Prime;/side)</div><div class="ln h">2 Rounds</div><div class="ln">30&Prime; Spanish Squat Hold</div><div class="ln">5 PVC Snatch Balance</div><div class="ln">5 PVC Overhead Squats (3&Prime; pause bottom)</div><div class="mob-why">Hoy manda el overhead: recepci&oacute;n r&aacute;pida, codos bloqueados, rodilla firme abajo.</div></div>
+  <div class="card box"><div class="card-t" role="button" tabindex="0" aria-expanded="false"><span class="ct">SU PLAN &middot; BOX</span><i class="chev"></i></div><div class="cb"><div class="cbi"><div class="cbp">
+    <div class="blk"><div class="blk-h">WARM-UP</div>
+      <div class="ln h">6:00 AMRAP</div><div class="ln">10 Behind the Neck Push Press</div><div class="ln">12 Cossack Squats @Empty BB</div><div class="ln">20 Hollow Rocks</div></div>
+    <div class="blk"><div class="blk-h">SKILL</div>
+      <div class="ln h">4 Rounds</div><div class="ln">Complex: 1 Power Snatch + 2 H. Power Snatch + 3 OHS @Building-up</div>
+      <div class="ln h">30 ON / 30 OFF &middot; 3 Rounds</div><div class="ln">BB Romanian Deadlift</div><div class="ln">Hanging Leg Raises</div>
+      <div class="ln">BB Reverse Lunges</div><div class="ln">V-Ups or Crunches</div></div>
+    <div class="blk"><div class="blk-h">WOD &middot; CAP 15:00</div>
+      <div class="ln h">3 Rounds</div><div class="ln">8 Power Snatch</div><div class="ln">15 Bar-Facing Burpees</div><div class="ln">8 Front Squats</div>
+      <div class="ln">15 Cal Row / Bike / Ski</div><div class="ln">RX @75/55 lb <span class="kg">(34/25 kg)</span></div></div>
+  </div></div></div></div>
+  <div class="mob post"><div class="mob-h"><span class="mob-b">POST</span><span class="mob-t">RODILLA BLINDADA</span><span class="mob-time">5&prime;</span></div><div class="ln h">2 Rounds</div><div class="ln">15 Wall Tibialis Raises</div><div class="ln">6/6 Slow Step-Down (3&Prime; down, low box)</div><div class="ln h">1:00 Couch Stretch (30&Prime;/side)</div><div class="mob-why">Cierre de semana de box: control exc&eacute;ntrico y cadera abierta.</div></div>
+</section>
+
+<!-- ============ SABADO ============ -->
+<section class="day" id="sab">
+  <div class="day-h"><h2>S&Aacute;BADO</h2><span class="date">7 NOV</span><span class="tag g">GYM C &middot; TREN INFERIOR ANAL&Iacute;TICO</span></div>
+  <p class="why">Por delante, domingo libre y el lunes zancadas, thrusters y sentadilla con salto. Piernas en m&aacute;quina, sin carga en la espalda y prensa a RIR 3 para llegar fresco.</p>
+  <div class="mob pre"><div class="mob-h"><span class="mob-b">PRE</span><span class="mob-t">RODILLA PRIMER</span><span class="mob-time">6&prime;</span></div><div class="ln h">2 Rounds</div><div class="ln">10/10 Banded Terminal Knee Extension</div><div class="ln">10/10 Banded Lateral Walk</div><div class="ln">30&Prime; Spanish Squat Hold</div><div class="ln h">1:00 Banded Ankle Dorsiflexion (30&Prime;/side)</div><div class="mob-why">D&iacute;a de pierna: la rodilla llega a la prensa y a la extensi&oacute;n ya preparada.</div></div>
+  <div class="split">
+    <div class="card orig"><div class="card-t" role="button" tabindex="0" aria-expanded="false"><span class="ct">SU PLAN &middot; <span>SUSTITUIDO</span></span><i class="chev"></i></div><div class="cb"><div class="cbi"><div class="cbp">
+      <div class="blk"><div class="blk-h">WARM-UP</div><div class="ln">Dynamic Activation</div></div>
+      <div class="blk"><div class="blk-h">WOD &middot; CAP 40:00</div>
+        <div class="ln h">4 Rounds</div><div class="ln">25 Wall Balls</div><div class="ln">20 Box Jump Over Step Down</div>
+        <div class="ln">15 T2B / Knee Raises</div><div class="ln">5/5 DB Devil Press</div><div class="ln">5 BMU / 10 Kipping Pull-ups</div>
+        <div class="ln r">Rest 1:00 between rounds</div><div class="ln h">Cash-out: 800 m Run</div></div>
+    </div></div></div></div>
+    <div class="card gym"><div class="card-t" role="button" tabindex="0" aria-expanded="false"><span class="ct">HYBRID MUSCLE &middot; 60&ndash;65&prime;</span><i class="chev"></i></div><div class="cb"><div class="cbi"><div class="cbp">
+      <div class="blk"><div class="blk-h">WARM-UP &middot; 8&prime;</div>
+        <div class="ln">5:00 BikeErg easy</div>
+        <div class="ln h">2 Rounds</div><div class="ln">10 Glute Bridges</div><div class="ln">10 Goblet Squats @light</div><div class="ln">10/10 Leg Swings</div></div>
+      <div class="blk"><div class="blk-h">FUERZA-HIPERTROFIA</div>
+        <div class="ex"><span class="k">A</span><span class="n">Hip Thrust (machine or BB)</span><span class="m"><span class="p s">4 x 8&ndash;10</span><span class="p rir">RIR 2</span><span class="p t">Rest 2:00</span></span></div>
+        <div class="ex"><span class="k">B</span><span class="n">Seated Leg Curl</span><span class="m"><span class="p s">4 x 10&ndash;12</span><span class="p rir">RIR 1&ndash;2</span><span class="p t">Rest 1:30</span></span></div>
+        <div class="ex"><span class="k">C</span><span class="n">Leg Press (feet mid)</span><span class="m"><span class="p s">3 x 10&ndash;12</span><span class="p rir">RIR 3</span><span class="p t">Rest 2:00</span></span></div>
+        <div class="ex"><span class="k">D</span><span class="n">Leg Extension</span><span class="m"><span class="p s">3 x 12&ndash;15</span><span class="p rir">RIR 2</span><span class="p t">Rest 1:00</span></span></div>
+        <div class="ex"><span class="k">E1</span><span class="n">Standing Calf Raise (2&Prime; pause bottom)</span><span class="m"><span class="p s">4 x 10&ndash;12</span><span class="p rir">RIR 1&ndash;2</span></span></div>
+        <div class="ex"><span class="k">E2</span><span class="n">Cable Pallof Press</span><span class="m"><span class="p s">3 x 10/side</span><span class="p t">Rest 1:00 after E2</span></span></div>
+      </div>
+      <div class="z2"><div class="blk-h">ZONA 2 &middot; CIERRE</div><div class="ln">25:00 SkiErg (or BikeErg) &middot; RPE 3&ndash;4</div></div>
+      <details><summary>FEEDBACK COACH</summary><div class="fb">
+        <div><b>FOCO T&Eacute;CNICO</b>Hip thrust: &laquo;empuja el suelo con los talones y sube la barra al techo&raquo;, pausa de 1&Prime; arriba. Curl femoral: bajada en 3&Prime;.</div>
+        <div class="rf"><b>BANDERAS ROJAS</b>La prensa no se negocia: RIR 3. Si el lunes llega con agujetas en cu&aacute;driceps, la semana siguiente baja a 2 series.</div>
+      </div></details>
+    </div></div></div></div>
+  </div>
+  <div class="mob post"><div class="mob-h"><span class="mob-b">POST</span><span class="mob-t">OVERHEAD Y DESCARGA</span><span class="mob-time">5&prime;</span></div><div class="ln h">2 Rounds</div><div class="ln">30&Prime; PVC Overhead Squat Hold (bottom)</div><div class="ln">8 PVC Pass-Throughs</div><div class="ln h">1:00 Couch Stretch (30&Prime;/side)</div><div class="mob-why">Tras la pierna, nada de m&aacute;s carga: solo rango overhead y cadera libre para el lunes.</div></div>
+</section>
+
+<!-- ============ VOLUMEN ============ -->
+<section class="day">
+  <div class="day-h"><h2>VOLUMEN SEMANAL</h2><span class="tag g">HYBRID MUSCLE</span></div>
+  <div class="card gym">
+    <table>
+      <tr><th>GRUPO</th><th>SERIES GYM</th><th>LO QUE SUMA EL BOX</th></tr>
+      <tr><td>Espalda</td><td class="n">14</td><td>Tir&oacute;n ol&iacute;mpico, peso muerto</td></tr>
+      <tr><td>Pecho</td><td class="n">10</td><td>Burpees</td></tr>
+      <tr><td>Deltoides lat. / post.</td><td class="n">4 + 3</td><td>Press, jerk, HSPU</td></tr>
+      <tr><td>B&iacute;ceps</td><td class="n">6</td><td>Tracci&oacute;n indirecta</td></tr>
+      <tr><td>Tr&iacute;ceps</td><td class="n">3</td><td>HSPU, press, push press</td></tr>
+      <tr><td>Gl&uacute;teo / isquios</td><td class="n">4 / 4</td><td>RDL, peso muerto, zancadas</td></tr>
+      <tr><td>Cu&aacute;driceps</td><td class="n">6</td><td>Mucho: zancadas, thrusters, frontal</td></tr>
+      <tr><td>Gemelo</td><td class="n">4</td><td>Saltos</td></tr>
+    </table>
+  </div>
+</section>
+
+<p class="foot">HYBRID MUSCLE &middot; HUMANFITS &middot; Ensayo de microciclo &middot; 2&ndash;7 nov 2026</p>
+</div>
+<script>
+/* ===== PLEGADO DE ENTRENAMIENTOS ===== */
+(function(){
+  function setOpen(card,open){
+    card.classList.toggle('open',open);
+    var t=card.querySelector('.card-t'); if(t) t.setAttribute('aria-expanded',open?'true':'false');
+  }
+  document.querySelectorAll('.card-t').forEach(function(t){
+    var card=t.parentNode;
+    t.addEventListener('click',function(){setOpen(card,!card.classList.contains('open'));});
+    t.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();setOpen(card,!card.classList.contains('open'));}
+    });
+  });
+  document.querySelectorAll('.ctl button').forEach(function(b){
+    b.addEventListener('click',function(){
+      var open=b.getAttribute('data-all')==='1';
+      document.querySelectorAll('.card-t').forEach(function(t){setOpen(t.parentNode,open);});
+    });
+  });
+})();
+
+/* ===== FONDO COSMICO: estrellas, pulsares, cometas ===== */
+(function(){
+  var c=document.getElementById('sky'); if(!c||!c.getContext) return;
+  var x=c.getContext('2d'), D=Math.min(window.devicePixelRatio||1,2), W=0, H=0;
+  var stars=[], puls=[], comets=[], nextComet=1500, last=performance.now();
+  var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize(){
+    W=innerWidth; H=innerHeight; c.width=W*D; c.height=H*D; x.setTransform(D,0,0,D,0,0);
+    var n=Math.round(W*H/4200); stars=[];
+    for(var i=0;i<n;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.15+.2,
+      p:Math.random()*6.283,s:.4+Math.random()*2.2,w:Math.random()<.14});
+    puls=[{x:W*.86,y:H*.16,c:'255,122,26',p:0,r:2.4},{x:W*.1,y:H*.58,c:'61,155,255',p:.33,r:2},{x:W*.64,y:H*.9,c:'124,200,255',p:.66,r:1.6}];
+    if(still) draw(performance.now());
+  }
+  function spawn(){
+    var sp=420+Math.random()*260, ang=.32+Math.random()*.3;
+    comets.push({x:Math.random()*W*.7-60,y:-30+Math.random()*H*.25,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,l:110+Math.random()*90,
+      c:Math.random()<.5?'255,194,61':'190,220,255'});
+  }
+  function draw(now){
+    var dt=Math.min((now-last)/1000,.05); last=now;
+    x.clearRect(0,0,W,H);
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i]; x.globalAlpha=.3+.7*(.5+.5*Math.sin(s.p+now/1000*s.s));
+      x.fillStyle=s.w?'#ffd9a8':'#dfe8ff'; x.beginPath(); x.arc(s.x,s.y,s.r,0,6.283); x.fill();
+    }
+    x.globalAlpha=1;
+    for(var j=0;j<puls.length;j++){
+      var p=puls[j], k=((now/1000)*.45+p.p)%1;
+      var g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,18);
+      g.addColorStop(0,'rgba('+p.c+',.95)'); g.addColorStop(.25,'rgba('+p.c+',.35)'); g.addColorStop(1,'rgba('+p.c+',0)');
+      x.fillStyle=g; x.beginPath(); x.arc(p.x,p.y,18,0,6.283); x.fill();
+      x.strokeStyle='rgba('+p.c+','+((1-k)*.4).toFixed(3)+')'; x.lineWidth=1.2;
+      x.beginPath(); x.arc(p.x,p.y,p.r+k*46,0,6.283); x.stroke();
+    }
+    if(!still){
+      if(now>nextComet){spawn(); nextComet=now+5000+Math.random()*7000;}
+      for(var m=comets.length-1;m>=0;m--){
+        var q=comets[m]; q.x+=q.vx*dt; q.y+=q.vy*dt;
+        var n=Math.hypot(q.vx,q.vy), tx=q.x-q.vx/n*q.l, ty=q.y-q.vy/n*q.l;
+        var lg=x.createLinearGradient(q.x,q.y,tx,ty);
+        lg.addColorStop(0,'rgba('+q.c+',.95)'); lg.addColorStop(1,'rgba('+q.c+',0)');
+        x.strokeStyle=lg; x.lineWidth=1.6; x.beginPath(); x.moveTo(q.x,q.y); x.lineTo(tx,ty); x.stroke();
+        x.fillStyle='rgba('+q.c+',1)'; x.beginPath(); x.arc(q.x,q.y,1.6,0,6.283); x.fill();
+        if(q.x>W+200||q.y>H+200) comets.splice(m,1);
+      }
+      requestAnimationFrame(draw);
+    }
+  }
+  addEventListener('resize',resize); resize();
+  if(!still) requestAnimationFrame(draw);
+})();
+
+/* ===== KETTLEBELL 3D (matriz HM v1.0) ===== */
+(function(){
+  var host=document.getElementById('kb3d'); if(!host) return;
+  var URL3='https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+  import(URL3).then(function(T){ build(T); }).catch(function(){});
+
+  function build(T){
+    var renderer;
+    try{ renderer=new T.WebGLRenderer({antialias:true,alpha:true}); }catch(e){ return; }
+    var W=host.clientWidth, H=host.clientHeight;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    renderer.setSize(W,H);
+    renderer.toneMapping=T.ACESFilmicToneMapping; renderer.toneMappingExposure=.92;
+    renderer.outputColorSpace=T.SRGBColorSpace;
+    host.appendChild(renderer.domElement);
+
+    var scene=new T.Scene();
+    var cam=new T.PerspectiveCamera(30,W/H,.1,50);
+    cam.position.set(0,.62,8.6); cam.lookAt(0,.62,0);
+
+    /* entorno: calor abajo, contraluz detras, frio arriba, tira vertical de estudio */
+    var envScene=new T.Scene();
+    envScene.add(new T.Mesh(new T.SphereGeometry(10,64,32),new T.ShaderMaterial({side:T.BackSide,
+      vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+      fragmentShader:'varying vec3 vP;void main(){float y=vP.y;vec3 c=vec3(.015,.015,.025);'+
+        'c+=vec3(1.7,.55,.12)*smoothstep(.0,-.65,y);'+
+        'c+=vec3(.45,.6,.95)*smoothstep(.45,1.,y)*.7;'+
+        'c+=vec3(1.4,.65,.2)*smoothstep(.55,.95,-vP.z)*.9;'+
+        'c+=vec3(1.6)*smoothstep(.07,0.,abs(vP.x+.35))*smoothstep(.1,.7,vP.z)*smoothstep(-.4,.2,y);'+
+        'c+=vec3(1.1,1.15,1.3)*smoothstep(.2,0.,abs(vP.z))*smoothstep(.75,.98,y);'+
+        'gl_FragColor=vec4(c,1.);}'})));
+    var pm=new T.PMREMGenerator(renderer);
+    scene.environment=pm.fromScene(envScene,.02).texture;
+
+    var kb=new T.Group(); scene.add(kb);
+    var gun=new T.MeshPhysicalMaterial({color:0x24272d,metalness:1,roughness:.34,clearcoat:.85,clearcoatRoughness:.14,envMapIntensity:.55});
+
+    /* cuerpo: apoyo plano r.50 a y=-.86, chaflan r.60 a y=-.805, cupula aplanada continua */
+    var prof=[new T.Vector2(0,-.86),new T.Vector2(.5,-.86),new T.Vector2(.6,-.805)], i, t, s;
+    var a0=Math.asin(-.805);
+    for(i=1;i<=28;i++){ t=a0+(-a0)*i/28; prof.push(new T.Vector2(Math.cos(t),Math.sin(t))); }
+    for(i=1;i<=56;i++){ t=Math.PI/2*i/56; s=Math.sin(t); prof.push(new T.Vector2(i===56?0:Math.cos(t),s*(1-.08*s*s))); }
+    kb.add(new T.Mesh(new T.LatheGeometry(prof,128),gun));
+
+    /* asa: eje Catmull-Rom centripeta, seccion .150 */
+    var L=[[-.52,.78],[-.595,1.02],[-.62,1.31],[-.555,1.55],[-.36,1.695],[0,1.735]], pts=[];
+    L.forEach(function(p){pts.push(new T.Vector3(p[0],p[1],0));});
+    for(i=L.length-2;i>=0;i--) pts.push(new T.Vector3(-L[i][0],L[i][1],0));
+    var curve=new T.CatmullRomCurve3(pts,false,'centripetal');
+    kb.add(new T.Mesh(new T.TubeGeometry(curve,200,.15,40,false),gun));
+
+    /* collarines .235 -> .150 en .22 */
+    [0,1].forEach(function(e){
+      var p=curve.getPoint(e), d=curve.getTangent(e).clone(); if(e===1) d.negate();
+      var col=new T.Mesh(new T.CylinderGeometry(.15,.235,.22,40,1,true),gun);
+      col.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());
+      col.position.copy(p).addScaledVector(d,.03);
+      kb.add(col);
+    });
+    kb.rotation.x=.06;
+
+    /* luces */
+    var key=new T.DirectionalLight(0xbfd6ff,1.3); key.position.set(-2,6,3); scene.add(key);
+        var warm=new T.PointLight(0xff5a14,22,9,2); warm.position.set(-1.7,-1.1,.5); scene.add(warm);
+    var warm2=new T.PointLight(0xff7a1a,18,9,2); warm2.position.set(1.7,-1.1,.5); scene.add(warm2);
+    var rim=new T.PointLight(0xff9a3d,30,9,2); rim.position.set(0,2.4,-1.9); scene.add(rim);
+
+    /* fuego: planos con ruido fbm, mezcla aditiva */
+    var FS='uniform float uT,uS,uA;varying vec2 vU;'+
+      'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}'+
+      'float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}'+
+      'float fb(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}'+
+      'void main(){float y=vU.y;float sw=sin(y*4.+uT*1.4+uS)*.05*y;float x=vU.x-.5+sw;'+
+      'float q=fb(vec2(x*3.6+uS,y*2.7-uT*1.7));'+
+      'float w=mix(.30,.04,pow(y,.7));'+
+      'float sh=1.-smoothstep(w*.35,w,abs(x)+(q-.5)*.28);'+
+      'float fd=smoothstep(0.,.12,y)*(1.-smoothstep(.55,1.,y+(q-.5)*.6))*smoothstep(.5,.36,abs(vU.x-.5));'+
+      'float f=clamp(sh*fd*(.55+q*.95),0.,1.)*uA;'+
+      'vec3 c=mix(vec3(.88,.2,.08),vec3(1.,.47,.1),smoothstep(.15,.55,f));c=mix(c,vec3(1.,.78,.26),smoothstep(.55,.95,f));'+
+      'gl_FragColor=vec4(c*f*1.5,f);}';
+    var VS='varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}';
+    var fires=[];
+    function flame(w,h,x,y,z,seed,amp){
+      var m=new T.ShaderMaterial({uniforms:{uT:{value:0},uS:{value:seed},uA:{value:amp}},vertexShader:VS,fragmentShader:FS,
+        transparent:true,depthWrite:false,blending:T.AdditiveBlending});
+      var me=new T.Mesh(new T.PlaneGeometry(w,h),m); me.position.set(x,y,z); scene.add(me); fires.push(m); return me;
+    }
+    flame(4.4,5.2,0,1.35,-1.2,1.7,1.);
+    flame(2.6,3.4,.15,.75,-.9,4.2,.7);
+    flame(1.6,2.3,-.95,-.05,.7,7.1,.7);
+    flame(1.6,2.3,.95,-.05,.7,9.3,.7);
+
+    /* chispas */
+    var N=150, pos=new Float32Array(N*3), vel=new Float32Array(N), cols=new Float32Array(N*3);
+    function seedP(k,anywhere){
+      pos[k*3]=(Math.random()-.5)*2.4; pos[k*3+1]=anywhere?-.8+Math.random()*3.6:-.9+Math.random()*.5; pos[k*3+2]=(Math.random()-.5)*2;
+      vel[k]=.5+Math.random()*1.2;
+    }
+    for(i=0;i<N;i++){ seedP(i,true); var hot=Math.random(); cols[i*3]=1; cols[i*3+1]=.45+hot*.4; cols[i*3+2]=.1+hot*.15; }
+    var pg=new T.BufferGeometry(); pg.setAttribute('position',new T.BufferAttribute(pos,3)); pg.setAttribute('color',new T.BufferAttribute(cols,3));
+    var cv=document.createElement('canvas'); cv.width=cv.height=64; var cx=cv.getContext('2d');
+    var rg=cx.createRadialGradient(32,32,0,32,32,32); rg.addColorStop(0,'rgba(255,255,255,1)'); rg.addColorStop(.3,'rgba(255,255,255,.6)'); rg.addColorStop(1,'rgba(255,255,255,0)');
+    cx.fillStyle=rg; cx.fillRect(0,0,64,64);
+    var sparks=new T.Points(pg,new T.PointsMaterial({size:.07,map:new T.CanvasTexture(cv),vertexColors:true,transparent:true,depthWrite:false,blending:T.AdditiveBlending}));
+    scene.add(sparks);
+
+    /* interaccion: giro solo + arrastre con inercia */
+    var spin=.38, vel0=0, drag=false, lx=0;
+    host.addEventListener('pointerdown',function(e){drag=true;lx=e.clientX;host.setPointerCapture(e.pointerId);host.style.cursor='grabbing';});
+    host.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-lx;lx=e.clientX;kb.rotation.y+=dx*.012;vel0=dx*.6;});
+    function up(){drag=false;host.style.cursor='grab';}
+    host.addEventListener('pointerup',up); host.addEventListener('pointercancel',up);
+
+    var visible=true;
+    if('IntersectionObserver' in window) new IntersectionObserver(function(en){visible=en[0].isIntersecting;}).observe(host);
+    var clock=new T.Clock();
+    document.querySelector('.hero').classList.add('live');
+
+    renderer.setAnimationLoop(function(){
+      if(!visible) return;
+      var dt=Math.min(clock.getDelta(),.05), tt=clock.elapsedTime;
+      if(!drag){ vel0*=.94; kb.rotation.y+=(spin+vel0)*dt; }
+      kb.position.y=Math.sin(tt*1.1)*.035;
+      for(var f=0;f<fires.length;f++) fires[f].uniforms.uT.value=tt;
+      warm.intensity=20+Math.sin(tt*11.)*3+Math.sin(tt*17.3)*2; warm2.intensity=17+Math.sin(tt*9.3)*3;
+      rim.intensity=28+Math.sin(tt*7.7)*4;
+      for(var k=0;k<N;k++){
+        pos[k*3+1]+=vel[k]*dt; pos[k*3]+=Math.sin(tt*2.+k)*.15*dt;
+        if(pos[k*3+1]>2.9) seedP(k,false);
+      }
+      pg.attributes.position.needsUpdate=true;
+      renderer.render(scene,cam);
+    });
+  }
+})();
+</script>
+</body>
+</html>
 
